@@ -61,6 +61,7 @@ def ls_long(args):
             long_entry = [mode, nlink, owner, group, size, time, fn_name, color_name]
             entries.append(long_entry)
         entries.sort(key=lambda x: locale.strxfrm(x[-2]))
+        # '.' first
         if args.recursive and entries[0][1].startswith('..'):
             entries[0], entries[1] = entries[1], entries[0]
         if args.sort:
@@ -91,10 +92,12 @@ def ls_short(args):
             short_entry = [size, fn_name, color_name]
             entries.append(short_entry)
         entries.sort(key=lambda x: locale.strxfrm(x[-2]))
+        # '.' first
         if args.recursive and entries[0][1].startswith('..'):
             entries[0], entries[1] = entries[1], entries[0]
         if args.sort:
             entries.sort(key=lambda x: x[0], reverse=True)
+        # max length should be different for each row, but is one for all
         column_widths = max(len(row[-2]) for row in entries)
         terminal_size = shutil.get_terminal_size()
         num_cols = terminal_size.columns // column_widths
@@ -163,12 +166,15 @@ def list_dir(args):
             if path_path.is_file():
                 dirs.append([path_path])
             else:
+                # should get real '.', '..' - not OS wise
                 if args.recursive:
                     for root, dirs_r, files_r in os.walk(path_path):
                         path_root = Path(root)
                         dirs_str = [(path_root / n) for n in [*dirs_r, *files_r]]
                         if args.all:
-                            dirs_str = [Path('.'), path_root / '..', *dirs_str]
+                            cur_dir = Path('.')
+                            par_dir = path_root / '..'
+                            dirs_str = [cur_dir, par_dir, *dirs_str]
                         dirs.append(dirs_str)
                 else:
                     dirs.append([(path_path / n) for n in os.listdir(path)])
@@ -185,7 +191,8 @@ def list_dir(args):
 
 
 def lspy():
-    """Entry point for 'ls':
+    """Entry point for 'ls'
+    
     List information about the FILEs (the current directory by default).
     """
     args = parse_args()
