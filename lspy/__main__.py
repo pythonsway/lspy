@@ -5,10 +5,9 @@ import math
 import os
 import shutil
 import stat
-import sys
 from pathlib import Path
 
-from .utils.constants import COLORS
+from lspy.utils.constants import COLORS
 
 # set locale for all categories to the user’s default setting
 locale.setlocale(locale.LC_ALL, '')
@@ -65,7 +64,7 @@ def ls_long(args):
         if args.recursive and entries[0][1].startswith('..'):
             entries[0], entries[1] = entries[1], entries[0]
         if args.sort:
-            entries.sort(key=lambda x: x[4], reverse=True)
+            entries.sort(key=lambda x: int(x[4]), reverse=True)
         column_widths = []
         for i in range(len(entries[0]) - 2):
             column = [row[i] for row in entries]
@@ -96,7 +95,7 @@ def ls_short(args):
         if args.recursive and entries[0][1].startswith('..'):
             entries[0], entries[1] = entries[1], entries[0]
         if args.sort:
-            entries.sort(key=lambda x: x[0], reverse=True)
+            entries.sort(key=lambda x: int(x[0]), reverse=True)
         # max length should be different for each row, but is one for all
         column_widths = max(len(row[-2]) for row in entries)
         terminal_size = shutil.get_terminal_size()
@@ -149,7 +148,7 @@ def prep_name(fn, filestats):
 
 
 def text_header(args, files, idf):
-    """Prepare text header."""
+    """Print text header."""
     if args.recursive:
         print(f'./{files[-1].parent}:')
     else:
@@ -183,16 +182,16 @@ def list_dir(args):
                         par_dir = path_path / '..'
                         dirs[idp] = [cur_dir, par_dir, *dirs[idp]]
                     else:
-                        dirs[idp] = [dir for dir in dirs[idp] if not dir.name.startswith('.')]
+                        dirs[idp] = [dir for dir in dirs[idp]
+                                     if not dir.name.startswith('.')]
         else:
-            print('Specified path does not exist.')
-            sys.exit()
+            print(f'lspy: cannot access \'{path}\': No such file or directory')
     return dirs
 
 
-def lspy():
-    """Entry point for 'ls'
-    
+def main():
+    """Entry point for 'lspy'
+
     List information about the FILEs (the current directory by default).
     """
     args = parse_args()
@@ -206,4 +205,4 @@ def lspy():
 
 
 if __name__ == '__main__':
-    lspy()
+    main()

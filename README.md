@@ -22,7 +22,7 @@ lspy [-h] [--long] [--all] [--sort] [--recursive] [files [files ...]]
 ### Example run
 #### - script:
 ```sh
-python lspy.py -al ./
+python -m lspy -al ./
 ```
 
 #### - installed module:
